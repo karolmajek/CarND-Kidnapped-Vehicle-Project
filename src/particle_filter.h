@@ -19,6 +19,10 @@ struct Particle
     double y;
     double theta;
     double weight;
+    void print()
+    {
+        printf("#%d %.2f, %.2f, %.2f   %.2f\n",id,x,y,theta,weight);
+    }
 };
 
 class ParticleFilter
@@ -113,6 +117,8 @@ public:
     {
         return is_initialized;
     }
+
+    double Gaussian(double mu, double sigma, double x);
 };
 
 #endif /* PARTICLE_FILTER_H_ */
