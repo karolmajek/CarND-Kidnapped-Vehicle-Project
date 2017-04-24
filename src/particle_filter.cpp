@@ -111,11 +111,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
         {
             double x = observations[o].x;
             double y = observations[o].y;
-            // cos(th) -sin(th)  0        x        x*cos(th) - y*sin(th)
-            // sin(th)  cos(th)  0    *   y   =    x*sin(th) + y*cos(th)
-            //    0        0     1        1       1
 
-            //obs in map frame
             double mapx = px + x * cos(pt) - y * sin(pt);
             double mapy = py + x * sin(pt) + y * cos(pt);
 
@@ -153,8 +149,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
             double denominator = 2.0 * M_PI * std_landmark[0] * std_landmark[1];
 
             weight *= numerator / denominator;
-
-            // printf("OBS #%d (%d):  %f %f  =>  %f %f    [%d]=%f\n", o, observations[o].id, observations[o].x, observations[o].y, x, y, min_dist_id, min_dist);
         }
         (*it).weight = weight;
         weights[(*it).id] = weight;
@@ -179,28 +173,21 @@ void ParticleFilter::resample()
     }
 
     // Max of these weights
-    double max_weight = 0.0;
-    for (int i = 0; i < particles.size(); i++)
-    {
-        if (weights[i] > max_weight)
-        {
-            max_weight = weights[i];
-        }
-    }
+    double max_weight = *std::max_element(weights.begin(), weights.end());
+
+
     // Resample
     double beta = 0.0;
     int particles_size = particles.size();
 
-    std::random_device rd1;
-    std::mt19937 gen1(rd1());
+    std::default_random_engine gen1;
     std::uniform_int_distribution<> uniform_int(0, particles_size);
     int index = uniform_int(gen1);
 
     std::vector<Particle> new_particles;
     std::vector<double> new_weights;
 
-    std::random_device rd2;
-    std::mt19937 gen2(rd2());
+    std::default_random_engine gen2;
     std::uniform_real_distribution<> uniform_double(0.0, 2.0 * max_weight);
 
     for (int i = 0; i < num_particles; i++)
